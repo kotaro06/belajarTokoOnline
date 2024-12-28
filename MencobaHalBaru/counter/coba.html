@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Form with Firebase</title>
+</head>
+<body>
+    <div id="form-container">
+        <div class="form-group" data-id="1">
+            <label for="input-1">Input:</label>
+            <input type="text" id="input-1" class="input-field">
+
+            <label for="select-1">Select:</label>
+            <select id="select-1" class="select-field">
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+                <option value="option3">Option 3</option>
+            </select>
+        </div>
+    </div>
+
+    <button id="add-form">Add Form</button>
+    <button id="save-forms">Save All</button>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDdDIprdjTALGP4yomTZjFq7gk5H2TqY0g",
+          authDomain: "belajartokoonlinea.firebaseapp.com",
+          databaseURL: "https://belajartokoonlinea-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "belajartokoonlinea",
+          storageBucket: "belajartokoonlinea.firebasestorage.app",
+          messagingSenderId: "352491087254",
+          appId: "1:352491087254:web:4144b6bc4f0bcf0ded29b7",
+          measurementId: "G-3RH04H2KRK"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const formContainer = document.getElementById("form-container");
+        const addFormButton = document.getElementById("add-form");
+        const saveFormsButton = document.getElementById("save-forms");
+
+        let formCount = 1;
+
+        // Function to add a new form
+        addFormButton.addEventListener("click", () => {
+            formCount++;
+
+            const newFormGroup = document.createElement("div");
+            newFormGroup.classList.add("form-group");
+            newFormGroup.setAttribute("data-id", formCount);
+
+            newFormGroup.innerHTML = `
+                <label for="input-${formCount}">Input:</label>
+                <input type="text" id="input-${formCount}" class="input-field">
+
+                <label for="select-${formCount}">Select:</label>
+                <select id="select-${formCount}" class="select-field">
+                    <option value="option1">Option 1</option>
+                    <option value="option2">Option 2</option>
+                    <option value="option3">Option 3</option>
+                </select>
+            `;
+
+            formContainer.appendChild(newFormGroup);
+        });
+
+        // Function to save all forms to Firebase
+        saveFormsButton.addEventListener("click", () => {
+            const formGroups = document.querySelectorAll(".form-group");
+
+            formGroups.forEach((formGroup) => {
+                const id = formGroup.getAttribute("data-id");
+                const inputField = formGroup.querySelector(".input-field").value;
+                const selectField = formGroup.querySelector(".select-field").value;
+
+                // Save each form data to Firebase
+                set(ref(db, `forms/form-${id}`), {
+                    input: inputField,
+                    select: selectField,
+                })
+                .then(() => {
+                    console.log(`Form ${id} saved successfully!`);
+                })
+                .catch((error) => {
+                    console.error(`Error saving form ${id}:`, error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

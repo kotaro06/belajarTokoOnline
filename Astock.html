@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nama Produk</title>    <!--line icon-->
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+    <!---bootstrap terbaru-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/styleProjekIni.css">
+  </head>
+
+  <body>
+
+   <div class="wrapper">
+    <!-- Navbar -->
+    <aside id="sidebar">
+
+            <div class="d-flex">
+             <button class="toggle-btn" type="button">
+               <i class="lni lni-grid-alt"></i>
+              </button>
+              <div class="sidebar-logo">
+                <a href="index.html">Toko Maskot</a>
+              </div>              
+            </div>
+
+            
+            <ul class="sidebar-nav">
+                <li class="sidebar-item">
+                    <a href="index.html" class="sidebar-link">
+                        <i class="lni lni-user"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="namaProduk.html" class="sidebar-link">
+                        <i class="lni lni-agenda"></i>
+                        <span>Produk</span>
+                    </a>
+                </li>
+                </li>
+                <li class="sidebar-item">
+                    <a href="kulaan.html" class="sidebar-link">
+                        <i class="lni lni-cart-full"></i>
+                        <span>Kulaan</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                        data-bs-target="#multi" aria-expanded="false" aria-controls="multi">
+                        <i class="lni lni-layout"></i>
+                        <span>Multi Level</span>
+                    </a>
+                    <ul id="multi" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                        <li class="sidebar-item">
+                            <a href="#" class="sidebar-link collapsed" data-bs-toggle="collapse"
+                                data-bs-target="#multi-two" aria-expanded="false" aria-controls="multi-two">
+                                Two Links
+                            </a>
+                            <ul id="multi-two" class="sidebar-dropdown list-unstyled collapse">
+                                <li class="sidebar-item">
+                                    <a href="#" class="sidebar-link">Link 1</a>
+                                </li>
+                                <li class="sidebar-item">
+                                    <a href="#" class="sidebar-link">Link 2</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <i class="lni lni-popup"></i>
+                        <span>Notification</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link">
+                        <i class="lni lni-cog"></i>
+                        <span>Setting</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <a href="#" class="sidebar-link">
+                    <i class="lni lni-exit"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+
+    </aside>
+
+    <!-- Table -->
+    <div class="main p-3">
+      <table class="table table-striped">
+        <thead>
+          <th>no</th>
+          <th>Gambar</th>
+          <th> Nama Produk 
+            <button id="plusbtn" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"> 
+              <i class="lni lni-plus"> </i> 
+            </button> 
+            <input type="text" id="searchInput" placeholder="Cari produk...">  
+          </th> 
+          <th> <input type="text" id="filterInput" placeholder="cari Penyimpanan..."></th>  
+          <th>Stock</th>
+          <th>Satuan</th>
+          <th>Action</th>  
+        </thead>
+        <tbody id="tBody1"></tbody>
+      </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel">
+      <div class="modal-lg  modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+         <div id="form-container">
+          <!-- Form pertama -->
+          <div class="modal-body" id="form-1"> 
+            <input type="text" id="id-1" size="3" placeholder="ID Barang">    
+                    
+            <select id="produk" class="select-input">
+              <option value="">Pilih Produk</option>
+            </select>
+            
+            <select id="penyimpanan">
+              <option value="">Pilih Penyimpanan</option>
+            </select>  
+                             
+            <input type="text" id="stock" placeholder="Stock" size="3">
+            <select id="satuan">
+              <option value="">Satuan</option>
+            </select>
+          </div>
+
+         </div>
+              <br><br>
+
+          <div class="modal-footer">                   
+           <button type="button" class="btn btn-secondary" id="save-nama">Save</button>
+           <button type="button" class="btn btn-success" id="update" hidden>Update</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    </div>
+  
+      
+    
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+   <script src="javaScript/scriptProjekIni.js"></script>    
+   <script type="module">
+    
+        import { ref, set, child, get, push, update, remove, onValue, orderByChild, limitToLast } 
+          from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";   
+         import { database } from "../javaScript/koneksi.js";  
+  
+     const db = database;
+     const dbRef = ref(db);
+
+    const formContainer = document.getElementById("form-container");
+    const plusbtn = document.getElementById("plusbtn");
+    const searchInput = document.getElementById('searchInput');
+    const filterInput = document.getElementById('filterInput');
+
+    const Id1 = document.getElementById("id-1");
+    const jenis1 = document.getElementById("produk");
+    const penyimpanan1 = document.getElementById("penyimpanan");
+    const stock1 = document.getElementById("stock");
+    const satuan1 = document.getElementById("satuan");
+  
+    //button   
+    const saveNamaBtn = document.getElementById("save-nama");
+    const updateBtn = document.getElementById("update");
+
+    plusbtn.addEventListener("click", () => {
+
+      Id1.value = "";
+      jenis1.value = "";  
+      penyimpanan1.value = "";
+      stock1.value = "";
+      satuan1.value = "";
+    
+       async function getLastNomor() {
+          const snapshot = await get(child(dbRef, 'dBstockDsimpan/'));
+          const data = snapshot.val();
+          if(data === null){
+            Id1.value = 1;
+          }else{
+            const lastId = Object.keys(data).length;
+            Id1.value = lastId + 1;
+          }
+        }
+
+         getLastNomor();        
+    });
+
+    // Ambil data untuk select list dari database
+    async function populateSelectOptions(selectElement) {
+      const selectRef = ref(db, "dBnamaBarang/");
+      const snapshot = await get(selectRef);
+      if (snapshot.exists()) {
+        const options = snapshot.val();
+        for (const key in options) {
+          const option = document.createElement("option");
+          option.value = key;
+          option.textContent = options[key].spesifikasiBarang;
+          selectElement.appendChild(option);
+        }
+      }
+    }
+
+     async function populateSelectOptions1(selectElement) {
+      const selectRef = ref(db, "penyimpanan/");
+      const snapshot = await get(selectRef);
+      if (snapshot.exists()) {
+        const options = snapshot.val();
+        for (const key in options) {
+          const option = document.createElement("option");
+          option.value = key;
+          option.textContent = options[key].lokasi + " - "  + options[key].rak + " - " + options[key].sebelah + " - " + options[key].susunan;
+          selectElement.appendChild(option);
+        }
+      }
+    }
+
+    async function populateSelectOptions2(selectElement) {
+      const selectRef = ref(db, "Satuan/");
+      const snapshot = await get(selectRef);
+      if (snapshot.exists()) {
+        const options = snapshot.val();
+        for (const key in options) {
+          const option = document.createElement("option");
+          option.value = key;
+          option.textContent = options[key].name;
+          selectElement.appendChild(option);
+        }
+      }
+    }
+
+   
+
+    
+    // Fungsi untuk menyimpan data
+    saveNamaBtn.addEventListener("click", async () => {
+      const dataRef = ref(db, "dBstockDsimpan/");
+      const snapshot = await get(dataRef);
+      let nextId = 1;
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        nextId = Math.max(...Object.keys(data).map(Number)) + 1;
+      }
+
+      if(Id1.value == "" || jenis1.value == "" || penyimpanan1.value == "" || stock1.value == "" || satuan1.value == ""){
+        alert("Data Tidak Boleh Kosong");
+      }
+
+      const selectText = jenis1.options[jenis1.selectedIndex].textContent;
+      const selectText1 = penyimpanan1.options[penyimpanan1.selectedIndex].textContent;
+      const selectText2 = satuan1.options[satuan1.selectedIndex].textContent;
+
+     set(ref(db, 'dBstockDsimpan/' + Id1.value), {
+        id: Id1.value,
+        jenisBarang: selectText,
+        penyimpanan: selectText1,
+        stock: stock1.value,
+        satuan: selectText2,
+      })
+      .then(() => {
+        alert("Data Tersimpan");
+        tutupModal();
+      })
+      .catch((error) => {
+        alert("Data Gagal Tersimpan" + error);
+      });
+    });
+
+    // Fungsi untuk menghapus form
+  
+
+    function getData() {
+          const starCountRef = ref(db, 'dBstockDsimpan/');
+
+          onValue(starCountRef, (snapshot) => {
+            tBody1.innerHTML = "";
+            const data = snapshot.val();
+
+           if(data){
+            Object.entries(data).forEach(([key, value]) => {
+             if (shouldDisplayItem(value)) {
+              const row = `
+                <tr>
+                  <td>${key}</td>
+                  <td>Gambar</td>
+                  <td>${value.jenisBarang}</td>
+                  <td>${value.penyimpanan}</td>
+                  <td>${value.stock}</td>
+                  <td>${value.satuan}</td>
+                  <td>
+                    <button class="btn btn-primary" id="btnUpdate" 
+                        data-no="${key}" data-jenis="${value.jenisBarang}" data-name="${value.penyimpanan}" 
+                        data-stock="${value.stock}" data-satuan="${value.satuan}"
+                        data-bs-toggle="modal" data-bs-target="#exampleModal"
+                    >Update</button>
+                    <button class="btn btn-danger" id="btnHapus" data-no="${key}">Hapus</button>
+                  </td>
+                </tr>
+              `;
+              tBody1.insertAdjacentHTML('beforeend', row);
+             }
+            });
+           }    
+
+          
+          
+
+           const btnEdit = document.querySelectorAll("#btnUpdate");
+           const btnHapus = document.querySelectorAll("#btnHapus");
+
+           btnEdit.forEach((item) => {
+            item.addEventListener("click", async function () {
+              let no = item.getAttribute("data-no");
+              let jenis = item.getAttribute("data-jenis");
+              let name = item.getAttribute("data-name");
+              let stock = item.getAttribute("data-stock");
+              let satuan = item.getAttribute("data-satuan");
+
+              Id1.value = no;
+              stock1.value = stock;
+              const snapshot = await get(ref(db, "dBnamaBarang/"));
+              const snapshot1 = await get(ref(db, "penyimpanan/"));
+              const snapshot2 = await get(ref(db, "Satuan/"));
+
+              if (snapshot.exists()) {
+                const options = snapshot.val();
+                jenis1.innerHTML = Object.entries(options)
+                    .map(([key, value]) => {
+                        const isSelected = jenis === value.spesifikasiBarang ? "selected" : "";
+                        return `<option value="${key}" ${isSelected}>${value.spesifikasiBarang}</option>`;
+                    })
+                    .join('');
+              } else {
+                console.warn("No select list data found.");
+              }
+              
+              if (snapshot1.exists()) {
+                const options = snapshot1.val();
+                penyimpanan1.innerHTML = Object.entries(options)
+                    .map(([key, value]) => {
+                        const isSelected = name === value.lokasi + " - " + value.rak + " - " + value.sebelah + " - " + value.susunan ? "selected" : "";
+                        return `<option value="${key}" ${isSelected}>${value.lokasi + " - " + value.rak + " - " + value.sebelah + " - " + value.susunan}</option>`;
+                    })
+                    .join('');
+              } else {
+                console.warn("No select list data found.");
+              }
+
+              if (snapshot2.exists()) {
+                const options = snapshot2.val();
+                satuan1.innerHTML = Object.entries(options)
+                    .map(([key, value]) => {
+                        const isSelected = satuan === value.name ? "selected" : "";
+                        return `<option value="${key}" ${isSelected}>${value.name}</option>`;
+                    })
+                    .join('');
+              } else {
+                console.warn("No select list data found.");
+              }
+
+              saveNamaBtn.hidden = true;
+              updateBtn.hidden = false;
+              
+            });
+           });
+
+           btnHapus.forEach((item) => {
+            item.addEventListener("click", function () {
+              let no = item.getAttribute("data-no");
+              remove(ref(db, 'dBstockDsimpan/' + no))
+              .then(() => {
+                alert("Data Terhapus");
+                location.reload();
+              })
+              .catch((error) => {
+                alert("Data Gagal Terhapus" + error);
+              });
+            });
+           });
+           });
+                 
+        }
+
+       function shouldDisplayItem(item) {
+        const searchValue = searchInput.value.toLowerCase();
+        const filterValue = filterInput.value.toLowerCase();
+
+        const matchesSearch = item.jenisBarang.toLowerCase().includes(searchValue);
+        const matchesFilter = !filterValue || item.nama.toLowerCase().includes(filterValue);
+
+        return matchesSearch && matchesFilter;
+       }
+      // Event listener untuk input pencarian dan filter
+      searchInput.addEventListener('input', getData);
+      filterInput.addEventListener('input', getData);
+      
+      getData(); 
+
+        updateBtn.addEventListener('click', function() {
+          if(Id1.value == "" || jenis1.value == "" || penyimpanan1.value == "" || stock1.value == "" || satuan1.value == ""){
+            alert("Data Tidak Boleh Kosong");
+          }else{
+             const selectText = jenis1.options[jenis1.selectedIndex].textContent;
+             const selectText1 = penyimpanan1.options[penyimpanan1.selectedIndex].textContent;
+             const selectText2 = satuan1.options[satuan1.selectedIndex].textContent;
+            update(ref(db, 'dBstockDsimpan/' + Id1.value), {
+              id: Id1.value,
+              jenisBarang: selectText,              
+              stock: stock1.value,
+              penyimpanan: selectText1,
+              satuan: selectText2,
+
+              
+            })
+            .then(() => {
+              alert("Data Terupdate");
+              tutupModal();
+              
+              
+            })
+            .catch((error) => {
+              alert("Data Gagal Terupdate" + error);
+            });
+          }
+        });
+
+         populateSelectOptions(jenis1);
+    populateSelectOptions1(penyimpanan1);
+    populateSelectOptions2(satuan1);
+  
+   </script>
+  </body>
+</html>

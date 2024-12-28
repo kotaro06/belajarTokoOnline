@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management</title>
+</head>
+<body>
+    <h1>Inventory Management</h1>
+
+    <h2>Tambah Barang Kulaan</h2>
+    <form id="addItemForm">
+        <input type="text" id="itemName" placeholder="Nama Barang" required />
+        <input type="number" id="itemQuantity" placeholder="Jumlah" required />
+        <button type="submit">Tambah Barang</button>
+    </form>
+
+    <h2>Stok Barang</h2>
+    <div id="stockList"></div>
+
+    <h2>Kurangi Stok</h2>
+    <form id="reduceStockForm">
+        <input type="text" id="reduceItemName" placeholder="Nama Barang" required />
+        <input type="number" id="reduceItemQuantity" placeholder="Jumlah" required />
+        <button type="submit">Kurangi Stok</button>
+    </form>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDdDIprdjTALGP4yomTZjFq7gk5H2TqY0g",
+          authDomain: "belajartokoonlinea.firebaseapp.com",
+          databaseURL: "https://belajartokoonlinea-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "belajartokoonlinea",
+          storageBucket: "belajartokoonlinea.firebasestorage.app",
+          messagingSenderId: "352491087254",
+          appId: "1:352491087254:web:4144b6bc4f0bcf0ded29b7",
+          measurementId: "G-3RH04H2KRK"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Tambah Barang Kulaan
+        const addItemForm = document.getElementById('addItemForm');
+        addItemForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const itemName = document.getElementById('itemName').value.trim();
+            const itemQuantity = parseInt(document.getElementById('itemQuantity').value);
+
+            if (!itemName || itemQuantity <= 0) {
+                alert('Nama barang atau jumlah tidak valid.');
+                return;
+            }
+
+            const itemRef = ref(db, `inventory/${itemName}`);
+            const snapshot = await get(itemRef);
+            if (snapshot.exists()) {
+                const existingQuantity = snapshot.val().quantity || 0;
+                await update(itemRef, { quantity: existingQuantity + itemQuantity });
+            } else {
+                await set(itemRef, { quantity: itemQuantity });
+            }
+            alert('Barang berhasil ditambahkan atau diperbarui!');
+        });
+
+        // Pantau Stok Barang
+        const stockList = document.getElementById('stockList');
+        onValue(ref(db, 'inventory'), (snapshot) => {
+            const data = snapshot.val();
+            stockList.innerHTML = '';
+            if (data) {
+                Object.keys(data).forEach((key) => {
+                    const item = data[key];
+                    const itemDiv = document.createElement('div');
+                    itemDiv.textContent = `${key}: ${item.quantity} pcs`;
+                    stockList.appendChild(itemDiv);
+                });
+            } else {
+                stockList.textContent = 'Tidak ada barang.';
+            }
+        });
+
+        // Kurangi Stok
+        const reduceStockForm = document.getElementById('reduceStockForm');
+        reduceStockForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const reduceItemName = document.getElementById('reduceItemName').value.trim();
+            const reduceItemQuantity = parseInt(document.getElementById('reduceItemQuantity').value);
+
+            if (!reduceItemName || reduceItemQuantity <= 0) {
+                alert('Nama barang atau jumlah tidak valid.');
+                return;
+            }
+
+            const itemRef = ref(db, `inventory/${reduceItemName}`);
+            const snapshot = await get(itemRef);
+            if (snapshot.exists()) {
+                const existingQuantity = snapshot.val().quantity || 0;
+                if (existingQuantity >= reduceItemQuantity) {
+                    await update(itemRef, { quantity: existingQuantity - reduceItemQuantity });
+                    alert('Stok berhasil dikurangi!');
+                } else {
+                    alert('Stok tidak mencukupi!');
+                }
+            } else {
+                alert('Barang tidak ditemukan!');
+            }
+        });
+
+        // Menangani masalah konsistensi
+        window.addEventListener('offline', () => {
+            alert('Anda sedang offline. Data akan disinkronkan saat online kembali.');
+        });
+        window.addEventListener('online', () => {
+            alert('Koneksi internet pulih. Data akan disinkronkan.');
+        });
+    </script>
+</body>
+</html>

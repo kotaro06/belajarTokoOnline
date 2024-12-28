@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nota Pembelian</title>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
+        // Inisialisasi Firebase (tanpa firebaseConfig)
+        const firebaseConfig = {
+          apiKey: "AIzaSyDdDIprdjTALGP4yomTZjFq7gk5H2TqY0g",
+          authDomain: "belajartokoonlinea.firebaseapp.com",
+          databaseURL: "https://belajartokoonlinea-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "belajartokoonlinea",
+          storageBucket: "belajartokoonlinea.firebasestorage.app",
+          messagingSenderId: "352491087254",
+          appId: "1:352491087254:web:4144b6bc4f0bcf0ded29b7",
+          measurementId: "G-3RH04H2KRK"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const dateElement = document.getElementById('currentDate');
+            dateElement.textContent = new Date().toLocaleDateString();
+
+            const itemTable = document.getElementById('itemTable');
+            const addItemBtn = document.getElementById('addItemBtn');
+            const totalAmountElement = document.getElementById('totalAmount');
+
+            let totalAmount = 0;
+
+            // Tambah baris baru
+            addItemBtn.addEventListener('click', () => {
+                addRow();
+            });
+
+            function addRow() {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td><input type="text" class="name" placeholder="Nama Barang"></td>
+                    <td><input type="number" class="qty" placeholder="0" min="0"></td>
+                    <td>
+                        <select class="unit">
+                            <option value="pcs">pcs</option>
+                            <option value="kg">kg</option>
+                            <option value="ltr">ltr</option>
+                        </select>
+                    </td>
+                    <td><input type="number" class="price" placeholder="0" min="0"></td>
+                    <td><span class="total">0</span></td>
+                    <td><button class="deleteBtn">Hapus</button></td>
+                `;
+
+                itemTable.appendChild(row);
+
+                const qtyInput = row.querySelector('.qty');
+                const priceInput = row.querySelector('.price');
+                const totalCell = row.querySelector('.total');
+                const deleteBtn = row.querySelector('.deleteBtn');
+
+                // Event untuk menghitung total harga per barang
+                [qtyInput, priceInput].forEach(input => {
+                    input.addEventListener('input', () => {
+                        const qty = parseInt(qtyInput.value) || 0;
+                        const price = parseInt(priceInput.value) || 0;
+                        const total = qty * price;
+
+                        totalCell.textContent = total;
+                        calculateTotalAmount();
+                    });
+                });
+
+                // Hapus baris
+                deleteBtn.addEventListener('click', () => {
+                    row.remove();
+                    calculateTotalAmount();
+                });
+            }
+
+            function calculateTotalAmount() {
+                const totalCells = document.querySelectorAll('.total');
+                totalAmount = Array.from(totalCells).reduce((acc, cell) => acc + parseInt(cell.textContent), 0);
+                totalAmountElement.textContent = totalAmount;
+            }
+
+            // Simpan ke Firebase
+            document.getElementById('saveBtn').addEventListener('click', () => {
+                const rows = document.querySelectorAll('#itemTable tr');
+                const items = [];
+
+                rows.forEach(row => {
+                    const name = row.querySelector('.name').value;
+                    const qty = row.querySelector('.qty').value;
+                    const unit = row.querySelector('.unit').value;
+                    const price = row.querySelector('.price').value;
+                    const total = row.querySelector('.total').textContent;
+
+                    if (name && qty && price) {
+                        items.push({ name, qty, unit, price, total });
+                    }
+                });
+
+                if (items.length > 0) {
+                    const dataRef = ref(database, 'purchases/');
+                    const newPurchaseRef = push(dataRef);
+
+                    set(newPurchaseRef, {
+                        date: new Date().toISOString(),
+                        items,
+                        totalAmount
+                    }).then(() => {
+                        alert("Data berhasil disimpan ke Firebase!");
+                    }).catch(err => console.error(err));
+                } else {
+                    alert("Harap isi data barang sebelum menyimpan!");
+                }
+            });
+        });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        input, select {
+            width: 90%;
+            padding: 5px;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .total-label {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Nota Pembelian</h1>
+        <p>Tanggal: <span id="currentDate"></span></p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Nama Barang</th>
+                    <th>Jumlah</th>
+                    <th>Satuan</th>
+                    <th>Harga Satuan</th>
+                    <th>Total Harga</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="itemTable">
+                <!-- Baris akan ditambahkan di sini -->
+            </tbody>
+        </table>
+
+        <div class="actions">
+            <button id="addItemBtn">Tambah Barang</button>
+            <div class="total-label">Total Seluruh Barang: <span id="totalAmount">0</span></div>
+        </div>
+        <div class="actions">
+            <button id="saveBtn">Simpan ke Firebase</button>
+        </div>
+    </div>
+</body>
+</html>

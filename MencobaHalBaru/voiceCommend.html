@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Command with Firebase</title>
+ 
+  <style>
+    #form-container {
+      display: none;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Voice Command Example</h1>
+  <button id="startButton" onclick="startListening()">Start Listening</button>
+
+  <div id="form-container">
+    <h2>Item Form</h2>
+    <label for="name">Item Name:</label>
+    <input type="text" id="name" placeholder="Enter item name"><br><br>
+    <label for="quantity">Quantity:</label>
+    <input type="number" id="quantity" placeholder="Enter quantity"><br><br>
+    <button onclick="hideForm()">Close Form</button>
+  </div>
+
+
+   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDdDIprdjTALGP4yomTZjFq7gk5H2TqY0g",
+      authDomain: "belajartokoonlinea.firebaseapp.com",
+      databaseURL: "https://belajartokoonlinea-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "belajartokoonlinea",
+      storageBucket: "belajartokoonlinea.firebasestorage.app",
+      messagingSenderId: "352491087254",
+      appId: "1:352491087254:web:4144b6bc4f0bcf0ded29b7",
+      measurementId: "G-3RH04H2KRK"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const startbtn = document.getElementById('startButton');
+
+    // Voice Command Implementation
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+
+    function showForm() {
+      document.getElementById('form-container').style.display = 'block';
+    }
+
+    function hideForm() {
+      document.getElementById('form-container').style.display = 'none';
+    }
+
+    function saveToFirebase(data) {
+      const id = Date.now();
+      set(ref(db, `items/${id}`), data)
+        .then(() => alert('Data saved successfully!'))
+        .catch((error) => alert('Error saving data: ' + error.message));
+    }
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.toLowerCase();
+      if (transcript.includes('buka')) {
+        showForm();
+      } else if (transcript.includes('submit form')) {
+        const name = document.getElementById('name').value;
+        const quantity = document.getElementById('quantity').value;
+
+        if (name && quantity) {
+          saveToFirebase({ name, quantity });
+          hideForm();
+        } else {
+          alert('Please fill all fields!');
+        }
+      } else {
+        alert('Command not recognized!');
+      }
+    };
+
+   window.startListening = function() {
+      recognition.start();
+    };
+  </script>
+</body>
+</html>

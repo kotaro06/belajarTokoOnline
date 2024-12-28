@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Command Bahasa Indonesia</title>
+  <script type="module">
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'id-ID'; // Bahasa Indonesia
+    recognition.interimResults = false;
+
+    let isListeningForCommands = false;
+
+    function showForm() {
+      document.getElementById('form-container').style.display = 'block';
+    }
+
+    function hideForm() {
+      document.getElementById('form-container').style.display = 'none';
+    }
+
+    function submitForm() {
+      const name = document.getElementById('name').value;
+      const quantity = document.getElementById('quantity').value;
+
+      if (name && quantity) {
+        alert(`Data terkirim: Nama Barang - ${name}, Jumlah - ${quantity}`);
+        hideForm();
+      } else {
+        alert('Harap isi semua kolom!');
+      }
+    }
+
+    window.showForm = showForm;
+    window.hideForm = hideForm;
+    window.submitForm = submitForm;
+
+    const commands = [
+      { trigger: "buka formulir", action: showForm },
+      { trigger: "tutup formulir", action: hideForm },
+      { trigger: "kirim formulir", action: submitForm },
+    ];
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.toLowerCase();
+
+      if (!isListeningForCommands) {
+        // Menunggu perintah "mulai dengarkan"
+        if (transcript.includes("itu")) {
+          isListeningForCommands = true;
+          alert('Mode perintah aktif. Silakan beri perintah...');
+        } else {
+          alert(`Perintah awal tidak dikenali: "${transcript}"`);
+        }
+      } else {
+        // Mencocokkan perintah
+        const matchedCommand = commands.find((cmd) =>
+          transcript.includes(cmd.trigger)
+        );
+
+        if (matchedCommand) {
+          matchedCommand.action();
+        } else {
+          alert(`Perintah tidak dikenali: "${transcript}"`);
+        }
+
+        // Kembali ke mode mendengarkan perintah awal
+        isListeningForCommands = false;
+        alert('Kembali ke mode menunggu perintah awal...');
+      }
+    };
+
+    recognition.onerror = (event) => {
+      alert(`Kesalahan pengenalan suara: ${event.error}`);
+    };
+
+    function startAlwaysListening() {
+      recognition.start();
+      alert('Mode selalu mendengarkan aktif. Ucapkan "mulai dengarkan".');
+    }
+
+    recognition.onend = () => {
+      // Restart pengenalan suara untuk mode selalu mendengarkan
+      if (!isListeningForCommands) {
+        recognition.start();
+      }
+    };
+
+    window.onload = startAlwaysListening; // Aktifkan mendengarkan setelah halaman dimuat
+  </script>
+  <style>
+    #form-container {
+      display: none;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Voice Command Bahasa Indonesia</h1>
+
+  <div id="form-container">
+    <h2>Formulir Barang</h2>
+    <label for="name">Nama Barang:</label>
+    <input type="text" id="name" placeholder="Masukkan nama barang"><br><br>
+    <label for="quantity">Jumlah:</label>
+    <input type="number" id="quantity" placeholder="Masukkan jumlah"><br><br>
+    <button onclick="hideForm()">Tutup Formulir</button>
+  </div>
+</body>
+</html>
