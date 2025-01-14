@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    // Contoh timestamp dari Firebase (milidetik)
+const firebaseTimestamp = 1735812990815;//1735812990815
+
+// Konversi ke Date object
+const date = new Date(firebaseTimestamp);
+
+// Format tanggal
+const formattedDate = date.toLocaleDateString("id-ID", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+});
+
+console.log(formattedDate); // Contoh output: "1 Januari 2023"
+
+  </script>
+</body>
+</html>

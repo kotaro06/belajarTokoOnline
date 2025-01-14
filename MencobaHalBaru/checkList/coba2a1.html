@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combobox dan Checkbox Firebase</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Checkbox merah saat dicentang */
+        .form-check-input:checked {
+            background-color: red;
+            border-color: red;
+        }
+        /* Label tercoret saat checkbox dicentang */
+        .form-check-input:checked + .form-check-label {
+            text-decoration: line-through;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h3>Combobox dan Checkbox dari Firebase</h3>
+    <div id="combobox-container">
+        <!-- Comboboxes akan dimasukkan di sini -->
+    </div>
+</div>
+
+<script type="module">
+   
+   import { ref, set, child, get, push, update, remove, onValue, orderByChild, limitToLast } 
+          from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";   
+         import { database } from "../../javaScript/koneksi.js";  
+  
+     
+   const db = database;
+
+    // Realtime Database reference
+    const dbRef = ref(db, 'dBstockDsimpan');
+
+    // Container for comboboxes
+    const comboboxContainer = document.getElementById('combobox-container');
+
+    // Fetch data from Firebase
+    onValue(dbRef, (snapshot) => {
+        const data = snapshot.val();
+
+        // Clear existing comboboxes
+        comboboxContainer.innerHTML = '';
+
+        if (data) {
+            const penyimpananSet = new Set();
+
+            // Collect unique penyimpanan values
+            for (const key in data) {
+                if (data[key].penyimpanan) {
+                    penyimpananSet.add(data[key].penyimpanan);
+                }
+            }
+
+            // Create a combobox and checkboxes for each penyimpanan
+            penyimpananSet.forEach(penyimpanan => {
+                const comboboxDiv = document.createElement('div');
+                comboboxDiv.className = 'mb-3';
+
+                const label = document.createElement('label');
+                label.className = 'form-label';
+                label.textContent = `Daftar Barang di ${penyimpanan}`;
+
+                const combobox = document.createElement('div');
+                combobox.className = 'form-group';
+
+                for (const key in data) {
+                    if (data[key].penyimpanan === penyimpanan && data[key].jenisBarang) {
+                        const checkboxDiv = document.createElement('div');
+                        checkboxDiv.className = 'form-check';
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'form-check-input';
+                        checkbox.id = `checkbox-${key}`;
+                        checkbox.value = data[key].jenisBarang;
+
+                        const checkboxLabel = document.createElement('label');
+                        checkboxLabel.className = 'form-check-label';
+                        checkboxLabel.setAttribute('for', `checkbox-${key}`);
+                        checkboxLabel.textContent = data[key].jenisBarang;
+
+                        // Append checkbox and label
+                        checkboxDiv.appendChild(checkbox);
+                        checkboxDiv.appendChild(checkboxLabel);
+                        combobox.appendChild(checkboxDiv);
+                    }
+                }
+
+                // Append label and combobox to container
+                comboboxDiv.appendChild(label);
+                comboboxDiv.appendChild(combobox);
+                comboboxContainer.appendChild(comboboxDiv);
+            });
+        } else {
+            comboboxContainer.innerHTML = '<p>No data available</p>';
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

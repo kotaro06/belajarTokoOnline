@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropdown dan Checkbox Firebase</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Checkbox merah saat dicentang */
+        .form-check-input:checked {
+            background-color: red;
+            border-color: red;
+        }
+        /* Label tercoret saat checkbox dicentang */
+        .form-check-input:checked + .form-check-label {
+            text-decoration: line-through;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h3>Dropdown dan Checkbox dari Firebase</h3>
+    <div id="dropdown-container">
+        <!-- Dropdowns akan dimasukkan di sini -->
+    </div>
+</div>
+
+ <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+         <div id="check-container">
+         
+
+         </div>
+              <br><br>
+
+          <div class="modal-footer">
+          </div>
+        </div>
+      </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+    // Import Firebase
+    import { ref, set, child, get, push, update, remove, onValue, orderByChild, limitToLast } 
+          from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";   
+    import { database } from "../../javaScript/koneksi.js";  
+  
+     
+   const db = database;
+   const dbRef = ref(db, 'dBstockDsimpan');
+   const dbCheckRef = ref(db, 'dBcheckSterSimpan');
+   const dropdownContainer = document.getElementById('dropdown-container');
+   const checkContainer = document.getElementById('check-container');
+   const gantiH5 = document.getElementById('exampleModalLabel');
+
+   const now3 = new Date();
+   const wibOffsetA = 1 * 1 * 10 * 1000;
+   const terDahulu =   24 * 60 * 60 * 1000;
+   const wibDate3 = new Date(now3.getTime() + wibOffsetA);
+   const wibDate3a = new Date(now3.getTime() - terDahulu);
+   const now3a = wibDate3.toISOString().split('T')[0];
+   const now3b = wibDate3a.toISOString().split('T')[0];
+   console.log('tanggal',wibDate3);
+   console.log('total tanggal',now3a);
+  
+   
+
+    onValue(dbRef, (snapshot) => {
+        const data = snapshot.val();
+
+        // Clear existing dropdowns
+        dropdownContainer.innerHTML = '';
+
+        if (data) {
+            const penyimpananSet = new Set();
+
+            // Collect unique penyimpanan values
+            for (const key in data) {
+                if (data[key].penyimpanan) {
+                    penyimpananSet.add(data[key].penyimpanan);                    
+                }
+            }
+
+            // Create tombol cek for each penyimpanan
+            penyimpananSet.forEach(penyimpanan => {    
+              const   keyword = 'gudang';
+              const match =  penyimpanan.toLowerCase().includes(keyword.toLowerCase()) ;
+               // console.log('match',match);
+                if (match === true) {
+                    const tombolCek = document.createElement('button');
+                    tombolCek.type = 'button';
+                    tombolCek.className = 'btn btn-primary';
+                    tombolCek.textContent = penyimpanan;
+                    tombolCek.setAttribute('data-bs-toggle', 'modal');
+                    tombolCek.setAttribute('data-bs-target', '#exampleModal');               
+                    tombolCek.addEventListener('click', () => {
+                    handleTombolCekClick(penyimpanan);
+                    });
+
+                    const keBawah = document.createElement('br');
+                    const keBawah2 = document.createElement('br');
+                    dropdownContainer.appendChild(keBawah);
+                    dropdownContainer.appendChild(keBawah2);
+                    dropdownContainer.appendChild(tombolCek);
+                }
+                       
+                 
+             
+            });
+        }
+
+    });
+
+    function handleTombolCekClick(penyimpanan) {
+        // Handle tombol cek clic
+        gantiH5.textContent = penyimpanan;
+        console.log('Tombol cek untuk penyimpanan:', penyimpanan);
+        onValue(dbRef, (snapshot) => {
+            const data = snapshot.val();
+            checkContainer.innerHTML = '';
+            if (data) {
+                for (const key in data) {
+                    if (data[key].penyimpanan === penyimpanan) {
+                        const checkboxDiv = document.createElement('div');
+                        checkboxDiv.className = 'form-check col-10 mb-2';
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'form-check-input';
+                        checkbox.id = `checkbox-${key}`;
+                        const jenisBarang = data[key].jenisBarang;
+                        const id = data[key].id;
+                        const isi = data[key].stock;
+                        const satuan = data[key].satuan;
+                       
+                        //checkbox.id = `${penyimpanan}-${jenisBarang}`;
+
+                        checkbox.addEventListener('change', () => handleCheckboxChange(checkbox, id, penyimpanan, jenisBarang));
+
+                        const checkboxLabel = document.createElement('label');
+                        checkboxLabel.className = 'form-check-label';
+                        checkboxLabel.setAttribute('for', `checkbox-${key}`);                        
+                        checkboxLabel.textContent = data[key].jenisBarang;
+                        
+                        const memasukkanIsi = document.createElement('input');
+                        memasukkanIsi.type = 'text';  
+                        memasukkanIsi.id = `isi-${key}`;                      
+                        memasukkanIsi.value = data[key].stock;                       
+
+                        const satuanLabel = document.createElement('label');
+                        satuanLabel.textContent = data[key].satuan;
+
+
+                        onValue(dbCheckRef, (snapshot) => {
+                            const checkData = snapshot.val();
+                            if (checkData) {
+                                for (const checkKey in checkData) {
+                                    if (checkData[checkKey].tanggal === now3a && checkData[checkKey].id === id) {
+                                        checkbox.checked = true;
+                                        checkboxLabel.style.textDecoration = 'line-through';
+                                        checkboxLabel.style.color = 'red';
+                                        break;
+                                    }
+                                }
+                            }
+                        });
+
+
+                        // Append checkbox and label to checkboxDiv
+                        checkboxDiv.appendChild(checkbox);
+                        checkboxDiv.appendChild(checkboxLabel);                        
+                        checkboxDiv.appendChild(memasukkanIsi);
+                        checkboxDiv.appendChild(satuanLabel);                       
+                        checkContainer.appendChild(checkboxDiv);
+                    }
+                }
+            }
+        });
+    }
+
+    function handleCheckboxChange(checkbox, id, penyimpanan, jenisBarang) {
+        const isChecked = checkbox.checked;   
+        const label = checkbox.nextElementSibling;
+         label.style.textDecoration = 'line-through';
+         label.style.color = 'red';  
+         const isi = document.getElementById(`isi-${id}`).value; 
+        if (isChecked) {
+            const checkData = {
+                id: id,
+                penyimpanan: penyimpanan,
+                jenisBarang: jenisBarang,
+                tanggal: now3a
+            };
+            console.log('Data stock:', isi + ' ' + 'tanggal check:', now3b);
+            set(ref(db, 'dBcheckSterSimpan/' + id), checkData);
+            update(ref(db, 'dBstockDsimpan/' + id), { stock: isi});
+        }else{  
+             console.log('Data stock:', isi + ' ' + 'tanggal check:', wibDate3a);         
+            update(ref(db, 'dBcheckSterSimpan/' + id), {
+               
+                tanggal: now3b
+            });
+        } 
+
+    }
+</script>
+</body>
+</html>

@@ -140,3 +140,17 @@ a.sidebar-link:hover {
     transform: rotate(45deg);
     transition: all .2s ease-out;
 }
+
+/**
+ * Editan dari selain bootstrap
+ */
+
+ .hidden {
+    display: none;
+}
+
+ .checked-label {    
+    text-decoration: line-through;
+    color: red;
+    font-weight: bold;
+}

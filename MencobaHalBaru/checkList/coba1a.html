@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropdown Combo Box</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .combo-box {
+            position: relative;
+            display: inline-block;
+            width: 200px;
+        }
+        .combo-box select {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .dropdown {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            z-index: 1;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .dropdown-item {
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .dropdown-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="combo-box">
+        <select id="combo-select">
+            <option selected disabled>Pilih Tugas</option>
+        </select>
+        <div id="dropdown" class="dropdown">
+            <label class="dropdown-item">
+                <input type="checkbox" value="Tugas 1"> Tugas 1
+            </label>
+            <label class="dropdown-item">
+                <input type="checkbox" value="Tugas 2"> Tugas 2
+            </label>
+            <label class="dropdown-item">
+                <input type="checkbox" value="Tugas 3"> Tugas 3
+            </label>
+        </div>
+    </div>
+
+    <script>
+        const comboSelect = document.getElementById('combo-select');
+        const dropdown = document.getElementById('dropdown');
+        const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+
+        // Toggle dropdown visibility
+        comboSelect.addEventListener('click', (e) => {
+            e.preventDefault();
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!event.target.closest('.combo-box')) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Update selected values in the select box
+      
+
+    </script>
+</body>
+</html>

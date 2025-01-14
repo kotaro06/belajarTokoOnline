@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropdown dan Checkbox Firebase</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Checkbox merah saat dicentang */
+        .form-check-input:checked {
+            background-color: red;
+            border-color: red;
+        }
+        /* Label tercoret saat checkbox dicentang */
+        .form-check-input:checked + .form-check-label {
+            text-decoration: line-through;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h3>Dropdown dan Checkbox dari Firebase</h3>
+    <div id="dropdown-container">
+        <!-- Dropdowns akan dimasukkan di sini -->
+    </div>
+</div>
+
+<script type="module">
+    // Import Firebase
+    import { ref, set, child, get, push, update, remove, onValue, orderByChild, limitToLast } 
+          from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";   
+    import { database } from "../../javaScript/koneksi.js";  
+  
+     
+   const db = database;
+    const dbRef = ref(db, 'dBstockDsimpan');
+    const dbCheckRef = ref(db, 'dBcheckSterSimpan');
+
+    // Container for dropdowns
+    const dropdownContainer = document.getElementById('dropdown-container');
+
+    // Fetch data from Firebase
+    onValue(dbRef, (snapshot) => {
+        const data = snapshot.val();
+
+        // Clear existing dropdowns
+        dropdownContainer.innerHTML = '';
+
+        if (data) {
+            const penyimpananSet = new Set();
+
+            // Collect unique penyimpanan values
+            for (const key in data) {
+                if (data[key].penyimpanan) {
+                    penyimpananSet.add(data[key].penyimpanan);
+                }
+            }
+
+            // Create a dropdown for each penyimpanan
+            penyimpananSet.forEach(penyimpanan => {
+                const dropdownDiv = document.createElement('div');
+                dropdownDiv.className = 'mb-3';
+
+                const dropdownButton = document.createElement('button');
+                dropdownButton.className = 'btn btn-secondary dropdown-toggle';
+                dropdownButton.type = 'button';
+                dropdownButton.dataset.bsToggle = 'dropdown';
+                dropdownButton.setAttribute('aria-expanded', 'false');
+                dropdownButton.textContent = penyimpanan;
+
+                const dropdownMenu = document.createElement('ul');
+                dropdownMenu.className = 'dropdown-menu';
+
+                // Populate dropdown with checkboxes
+                for (const key in data) {
+                    if (data[key].penyimpanan === penyimpanan && data[key].jenisBarang) {
+                        const dropdownItem = document.createElement('li');
+                        const checkboxDiv = document.createElement('div');
+                        checkboxDiv.className = 'form-check ms-2';
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'form-check-input';
+                        checkbox.id = `checkbox-${key}`;
+                        const jenisBarang = data[key].jenisBarang;
+                        const id = data[key].id;
+                        //checkbox.id = `${penyimpanan}-${jenisBarang}`;
+
+                        checkbox.addEventListener('change', () => handleCheckboxChange(checkbox, id, penyimpanan, jenisBarang));
+
+                        const checkboxLabel = document.createElement('label');
+                        checkboxLabel.className = 'form-check-label';
+                        checkboxLabel.setAttribute('for', `checkbox-${key}`);
+                        checkboxLabel.textContent = data[key].jenisBarang;
+
+                        // Append checkbox and label
+                        checkboxDiv.appendChild(checkbox);
+                        checkboxDiv.appendChild(checkboxLabel);
+                        dropdownItem.appendChild(checkboxDiv);
+                        dropdownMenu.appendChild(dropdownItem);
+                    }
+                }
+
+                // Append button and menu to dropdown container
+                dropdownDiv.appendChild(dropdownButton);
+                dropdownDiv.appendChild(dropdownMenu);
+                dropdownContainer.appendChild(dropdownDiv);
+            });
+
+             function handleCheckboxChange(checkbox, id, penyimpanan, jenisBarang) {
+                const label = checkbox.nextElementSibling;
+                if (checkbox.checked) {
+                    label.style.textDecoration = 'line-through';
+                    label.style.color = 'red';
+
+                    // Save to dBcheckSterSimpan
+                    const newCheckRef = push(dbCheckRef);
+                    set(ref(db, 'dBcheckSterSimpan/' + id), {
+                        id: id,
+                        penyimpanan: penyimpanan,
+                        jenisBarang: jenisBarang,
+                        tanggal: Date.now()
+                    });
+                } else {
+                    label.style.textDecoration = 'none';
+                    label.style.color = 'inherit';
+                }
+            }
+        } else {
+            dropdownContainer.innerHTML = '<p>No data available</p>';
+        }
+    });
+
+    function panggilTanggal() {
+       onValue(dbCheckRef, (snapshot) => {
+        const data = snapshot.val();
+        console.log(data);
+        if (data) {
+            for (const key in data) {
+                const id = data[key].id;
+                const jenisBarang = data[key].jenisBarang;
+                const tanggal = data[key].tanggal;
+
+                const date = new Date(tanggal);
+                const formattedDate = id + " " + jenisBarang + " " + date.toLocaleDateString("id-ID", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "numeric",
+                    second: "numeric",
+                });
+                console.log(formattedDate);
+            }
+        } else {
+            console.log('No data available');
+        }
+    });
+    }
+
+    panggilTanggal();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
