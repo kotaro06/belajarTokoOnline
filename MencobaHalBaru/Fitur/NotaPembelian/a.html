@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nota Pembelian</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-4">
+    <h1 class="text-center">Nota Pembelian</h1>
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label for="kodeNota" class="form-label">Kode Nota</label>
+        <input type="text" id="kodeNota" class="form-control" placeholder="Masukkan kode nota">
+      </div>
+      <div class="col-md-4">
+        <label for="tanggal" class="form-label">Tanggal</label>
+        <input type="date" id="tanggal" class="form-control">
+      </div>
+      <div class="col-md-4">
+        <label for="pembeli" class="form-label">Pembeli</label>
+        <input type="text" id="pembeli" class="form-control" placeholder="Masukkan nama pembeli">
+      </div>
+    </div>
+
+    <table class="table table-bordered" id="notaTable">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Name Produk</th>
+          <th>Judul</th>
+          <th>Nilai</th>
+          <th>Satuan</th>
+          <th>Harga</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="row">
+      <div class="col text-end">
+        <h4>Total Harga Semua: <span id="totalHargaSemua">0</span></h4>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+     import { ref, onValue, child, set, get, update, remove, push, } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+     import { database } from "../../../javaScript/koneksi.js";
+     
+        const db = database;
+        const dbRef = ref(db);
+
+    const notaTableBody = document.querySelector('#notaTable tbody');
+    const totalHargaSemuaElement = document.getElementById('totalHargaSemua');
+    let totalHargaSemua = 0;
+
+    function fetchProdukData() {
+      return new Promise((resolve, reject) => {
+        const produkRef = ref(db, 'hargaProduk');
+        get(produkRef).then(snapshot => {
+          const produkData = snapshot.val();
+          resolve(produkData);
+        }).catch(error => {
+          reject(error);
+        });
+      });
+    }
+
+    async function addRow(rowIndex) {
+      const produkData = await fetchProdukData();
+
+      const tr = document.createElement('tr');
+      tr.className = rowIndex % 2 === 0 ? 'table-secondary' : '';
+
+      tr.innerHTML = `
+        <td>${rowIndex + 1}</td>
+        <td>
+          <select class="form-select" onchange="handleNameProdukChange(event, ${rowIndex})" name="nameProduk(${rowIndex})">
+            <option value="">Pilih Produk</option>
+            ${Object.keys(produkData).map(key => `<option value="${key}">${produkData[key].NameProduk}</option>`).join('')}
+          </select>
+        </td>
+        <td>
+          <select class="form-select" disabled onchange="handleJudulChange(event, ${rowIndex})" name="judul">
+            <option value="">Pilih Judul</option>
+          </select>
+        </td>
+        <td><input type="number" class="form-control" min="0" value="0" onchange="calculateRowTotal(${rowIndex})" disabled></td>
+        <td><input type="text" class="form-control" disabled></td>
+        <td><input type="number" class="form-control" value="0" disabled></td>
+        <td><input type="number" class="form-control" value="0" readonly></td>
+      `;
+
+      notaTableBody.appendChild(tr);
+    }
+
+    const produkRef = ref(db, 'hargaProduk');
+    const namaPr = document.getElementById('judul');
+console.log(namaPr);
+   
+  
+    function handleNameProdukChange(event, rowIndex) {
+      const produkId = event.target.value;
+      const row = notaTableBody.rows[rowIndex];
+      const judulSelect = row.cells[2].querySelector('select');
+
+      if (produkId) {
+       db.ref(`hargaProduk/${produkId}/Judul`).once('value').then(snapshot => {
+          const produk = snapshot.val();
+          judulSelect.innerHTML = Object.keys(produk.Judul || {}).map(judulKey => `
+            <option value="${judulKey}">${judulKey}</option>
+          `).join('');
+          judulSelect.disabled = false;
+        });
+      }
+    }
+
+    function handleJudulChange(event, rowIndex) {
+      const judul = event.target.value;
+      const row = notaTableBody.rows[rowIndex];
+      const produkId = row.cells[1].querySelector('select').value;
+
+      if (judul) {
+        firebase.database().ref(`hargaProduk/${produkId}/Judul/${judul}`).once('value').then(snapshot => {
+          const data = snapshot.val();
+          row.cells[3].querySelector('input').disabled = false;
+          row.cells[4].querySelector('input').value = data.Satuan || '';
+          row.cells[5].querySelector('input').value = data.Harga || 0;
+        });
+      }
+    }
+
+    function calculateRowTotal(rowIndex) {
+      const row = notaTableBody.rows[rowIndex];
+      const nilai = parseFloat(row.cells[3].querySelector('input').value) || 0;
+      const harga = parseFloat(row.cells[5].querySelector('input').value) || 0;
+      const total = nilai * harga;
+
+      row.cells[6].querySelector('input').value = total;
+      calculateTotalHargaSemua();
+
+      if (rowIndex === notaTableBody.rows.length - 1) {
+        addRow(rowIndex + 1);
+      }
+    }
+
+    function calculateTotalHargaSemua() {
+      totalHargaSemua = Array.from(notaTableBody.rows).reduce((sum, row) => {
+        return sum + (parseFloat(row.cells[6].querySelector('input').value) || 0);
+      }, 0);
+
+      totalHargaSemuaElement.textContent = totalHargaSemua;
+    }
+
+    // Initialize with one row
+    addRow(0);
+  </script>
+</body>
+</html>

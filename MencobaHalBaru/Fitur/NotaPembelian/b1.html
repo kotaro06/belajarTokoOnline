@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nota Pembelian</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <h2 class="mb-4">Nota Pembelian</h2>
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name Produk</th>
+          <th>Judul</th>          
+          <th>Nilai</th>
+          <th>Satuan</th>
+          <th>Harga</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="product-table">
+        <tr>
+          <td><input type="text" class="form-control" name="id"></td>
+          <td>
+            <select class="form-select" name="nameProduk">
+              <option value="">Pilih Produk</option>
+            </select>
+          </td>
+          <td>
+            <select class="form-select" name="judul">
+              <option value="">Pilih Judul</option>
+            </select>
+          </td>          
+          <td><input type="number" class="form-control" name="nilai" size="3"></td>
+          <td><input type="text" class="form-control" name="satuan" readonly></td>
+          <td><input type="number" class="form-control" name="harga" readonly></td>
+          <td><input type="number" class="form-control" name="total" readonly></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="text-end">
+      <strong>Total Keseluruhan: </strong><span id="grand-total">0</span>
+    </div>
+  </div>
+
+ <script type="module">
+     import { ref, onValue, child, set, get, update, remove, push, } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+     import { database } from "../../../javaScript/koneksi.js";
+     
+        const db = database;
+        const dbRef = ref(db);
+        const dbRefhargaProduk = ref(db,'hargaProduk') 
+   
+
+
+    const productTable = document.getElementById('product-table');
+    const grandTotalEl = document.getElementById('grand-total');
+    const jProduk = productTable.querySelector('select[name="nameProduk"]');
+    const jJudul = productTable.querySelector('select[name="judul"]');
+  
+
+     async function populateSelectOptions(selectElement) {
+          const selectRef = ref(db, "produk/");
+          const snapshot = await get(selectRef);
+          if (snapshot.exists()) {
+            const options = snapshot.val();
+            for (const key in options) {
+              const option = document.createElement("option");
+              option.value = key;
+              option.textContent = options[key].NameProduk;
+              selectElement.appendChild(option);
+            }
+          }
+        }
+
+        populateSelectOptions(jProduk);
+
+        jProduk.addEventListener('change', async () => {
+          const selectedValue = jProduk.value;
+          const hargaProdukRef = ref(db, `hargaProduk/${selectedValue}`);
+          const snapshot = await get(hargaProdukRef);
+           if (snapshot.exists()) {
+            const options = snapshot.val();
+            for (const key in options) {
+              const option = document.createElement("option");
+              option.value = key;
+              option.textContent = options[key].Harga;
+              jJudul.appendChild(option);
+            }
+          }
+        });
+
+      
+       
+
+
+   
+
+    
+
+    function calculateRowTotal(row) {
+      const nilai = parseFloat(row.querySelector('input[name="nilai"]').value) || 0;
+      const harga = parseFloat(row.querySelector('input[name="harga"]').value) || 0;
+      const total = nilai * harga;
+
+      console.log('nilai',nilai);
+      console.log('harga',harga);
+      console.log('total',total);
+
+      row.querySelector('input[name="total"]').value = total;
+      calculateGrandTotal();
+    }
+
+    function calculateGrandTotal() {
+      let grandTotal = 0;
+
+      productTable.querySelectorAll('input[name="total"]').forEach(input => {
+        grandTotal += parseFloat(input.value) || 0;
+      });
+
+      grandTotalEl.textContent = grandTotal;
+    }
+  </script>
+</body>
+</html>
